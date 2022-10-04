@@ -11,11 +11,19 @@ Kmax = 500; % Maximum number of iteration indicates the acceptable value within 
 
 rho = 1.0; % Set rho parameter of the augmented Lagrangian. It is part of the regularization term added for obtaining a strictly convex optimization problem
 
-[Dataset,p] = newData("load"); % if argument="load" it loads, else for any other argument e.g. "Random" it generates new data collected in Dataset. p indicates the partitioned sets
+[trainDS, testDS] = newData("load"); % if argument="load" it loads, else for any other argument e.g. "Random" it generates new data collected in Dataset. p indicates the partitioned sets
 
+m = size(trainDS,1); % extract training samples number
+Nss = floor(m.*0.1); % number of sub sets to create for the split by data approach
+
+% Calculate sub-partitions that will be assigned to each agent
+label = trainDS(:,[size(trainDS,2)]); % considering last colum of the trainingDS as labels col
+p = zeros(1,m);
+p(label == 1)  = sort(randi([1, floor(Nss/2)], sum(label==1),1));
+p(label == -1) = sort(randi([floor(Nss/2)+1, Nss], sum(label==-1),1));
 
 % Let's call the function to solve the SVM problem using ADMM
-[results] = svm_admm(Dataset, lambda, Kmax, p, rho);
+[results] = svm_admm(trainDS, lambda, Kmax, p, rho);
 
 % Now let's see the results
 K = length(results.objval); % Retrieve all steps' data
@@ -39,7 +47,7 @@ ylabel('||s||_2'); xlabel('iter (k)');
 %
 figure;
 hold on;
-gscatter(Dataset(:,1),Dataset(:,2), Dataset(:,size(Dataset,2)));
+gscatter(trainDS(:,1),trainDS(:,2), trainDS(:,size(trainDS,2)));
 
 xavg = mean(results.lastx,2);
 zavg = mean(results.lastz,2);

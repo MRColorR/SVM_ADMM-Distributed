@@ -1,9 +1,8 @@
-function [Dataset,p] = newData(type)
+function [trainDS, testDS] = newData(type)
 
 % setup default behaviour it will be adapted to the specific dataset if needed
 n = 2; % Default number of features
 m = 200; % Default number of samples
-Nss = floor(m.*0.1); % Default number of sub sets to create for the split by data approach
 
 % Generate random values that will be used as dataset if no other dataset is provided
 
@@ -37,7 +36,7 @@ if type == "load" % if want to use a specific dataset load it, else use default 
         % setup number of samples and features
         n = size(DSOrig,2); % number of features
         m = size(DSOrig,1); % number of samples
-        Nss = floor(m.*0.1); % number of sub sets to create for the split by data approach
+
 
     else
         (fprintf("No file selected. Random generated values dataset will be used.\n"));
@@ -50,12 +49,12 @@ r = randperm(size(DSOrig,1)); % permute row numbers
 Dataset = DSOrig(r,:); % Obtain the shuffled version of the original dataset
 
 % Check labels and if needed replace 0 labels with -1 andle leave 1 as 1.
-cols = size(Dataset,2);
-label = Dataset(:,cols); % considering last colum as labels col
+cols = size(Dataset,2); % considering last colum of the entire dataset as labels col
+label = Dataset(:,[cols]);
 label(label==0) = -1;
 Dataset(:,cols) = label;
 
-% Calculate partitions that will be assigned to each agent
-p = zeros(1,m);
-p(label == 1)  = sort(randi([1, floor(Nss/2)], sum(label==1),1));
-p(label == -1) = sort(randi([floor(Nss/2)+1, Nss], sum(label==-1),1));
+crossVal = cvpartition(m,'Holdout',0.1);
+TrIdxCV = crossVal.test;
+trainDS = Dataset(~TrIdxCV,:);
+testDS  = Dataset(TrIdxCV,:);
