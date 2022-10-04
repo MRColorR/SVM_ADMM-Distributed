@@ -14,12 +14,12 @@ rng('default');
 % -1 class some others to +1 class.
 N = floor(m/2);
 M = floor(m/2);
-plus1 = [1.8+0.8*randn(1,0.6*N), 1.7+0.6*randn(1,0.4*N);
-    1.6*(randn(1,0.6*N)+1), 1.5*(randn(1,0.4*N)+1)];
+plus1 = [1.8+0.6*randn(1,0.6*N), 1.7+0.7*randn(1,0.4*N);
+    1.3*(randn(1,0.6*N)+1.2), 1.4*(randn(1,0.4*N)+1.1)];
 
 % negative examples
-minus1 = [-1.8+0.8*randn(1,0.6*M),  -1.7+0.6*randn(1,0.4*M);
-    -1.6*(randn(1,0.6*M)-1), -1.5*(randn(1,0.4*M)-1)];
+minus1 = [-1.8+0.6*randn(1,0.6*M),  -1.7+0.7*randn(1,0.4*M);
+    -1.3*(randn(1,0.6*M)-1.1), -1.4*(randn(1,0.4*M)-1)];
 
 x = [minus1, plus1]; % x contains all the generated values
 y = [-ones(1,N), ones(1,M)]; % labels

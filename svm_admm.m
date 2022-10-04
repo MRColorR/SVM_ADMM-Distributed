@@ -3,16 +3,16 @@ function [results] = svm_admm(trainSamples, trainLabels, lambda, Kmax, p, rho)
 t_start = tic;
 
 % Set tolerances for stop condition
-ABSTOL   = 1e-4;
-RELTOL   = 1e-2;
+tolAbs   = 1e-4;
+tolRel   = 1e-2;
 Dataset = [trainSamples,trainLabels];
 % We simulate a distributed consensus in a serial way so the data must be treated appropriately
-n = size(Dataset,2); %extract columns dimension 
+n = size(Dataset,2); %extract columns dimension
 N = max(p); % retrieve numbers of partitions
 
 % group samples together
 tmp = cell(1,N); % Preallocate variable to reduce computational time
-for i = 1:N
+parfor i = 1:N
     tmp{i} = Dataset(p==i,:);
 end
 Dataset = tmp;
@@ -54,8 +54,8 @@ for k = 1:Kmax % Iteration's steps
     results.r_norm(k)  = norm(x - z); % L2 norm of x-z
     results.s_norm(k)  = norm(-rho*(z - zold));
 
-    results.eps_pri(k) = sqrt(n)*ABSTOL + RELTOL*max(norm(x), norm(-z));
-    results.eps_dual(k)= sqrt(n)*ABSTOL + RELTOL*norm(rho*u);
+    results.eps_pri(k) = sqrt(n)*tolAbs + tolRel*max(norm(x), norm(-z));
+    results.eps_dual(k)= sqrt(n)*tolAbs + tolRel*norm(rho*u);
 
     fprintf('%3d\t%10.4f\t%10.4f\t%10.4f\t%10.4f\t%10.2f\n', k, results.r_norm(k), results.eps_pri(k), results.s_norm(k), results.eps_dual(k), results.objval(k));
     %
