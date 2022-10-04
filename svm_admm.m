@@ -1,13 +1,13 @@
-function [results] = svm_admm(Dataset, lambda, Kmax, p, rho)
+function [results] = svm_admm(trainSamples, trainLabels, lambda, Kmax, p, rho)
 % Start stopwatch to measure execution time
 t_start = tic;
 
 % Set tolerances for stop condition
 ABSTOL   = 1e-4;
 RELTOL   = 1e-2;
-
+Dataset = [trainSamples,trainLabels];
 % We simulate a distributed consensus in a serial way so the data must be treated appropriately
-n = size(Dataset,2); %extract dimension from matrix A
+n = size(Dataset,2); %extract columns dimension 
 N = max(p); % retrieve numbers of partitions
 
 % group samples together

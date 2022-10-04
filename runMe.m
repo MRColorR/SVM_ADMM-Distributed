@@ -11,19 +11,18 @@ Kmax = 500; % Maximum number of iteration indicates the acceptable value within 
 
 rho = 1.0; % Set rho parameter of the augmented Lagrangian. It is part of the regularization term added for obtaining a strictly convex optimization problem
 
-[trainDS, testDS] = newData("load"); % if argument="load" it loads, else for any other argument e.g. "Random" it generates new data collected in Dataset. p indicates the partitioned sets
+[trainSamples,trainLabels, testSamples, testLabels] = newData("load"); % if argument="load" it loads, else for any other argument e.g. "Random" it generates new data collected in Dataset. p indicates the partitioned sets
 
-m = size(trainDS,1); % extract training samples number
+m = size(trainSamples,1); % extract training samples number
 Nss = floor(m.*0.1); % number of sub sets to create for the split by data approach
 
 % Calculate sub-partitions that will be assigned to each agent
-label = trainDS(:,[size(trainDS,2)]); % considering last colum of the trainingDS as labels col
 p = zeros(1,m);
-p(label == 1)  = sort(randi([1, floor(Nss/2)], sum(label==1),1));
-p(label == -1) = sort(randi([floor(Nss/2)+1, Nss], sum(label==-1),1));
+p(trainLabels == 1)  = sort(randi([1, floor(Nss/2)], sum(trainLabels==1),1));
+p(trainLabels == -1) = sort(randi([floor(Nss/2)+1, Nss], sum(trainLabels==-1),1));
 
 % Let's call the function to solve the SVM problem using ADMM
-[results] = svm_admm(trainDS, lambda, Kmax, p, rho);
+[results] = svm_admm(trainSamples, trainLabels, lambda, Kmax, p, rho);
 
 % Now let's see the results
 K = length(results.objval); % Retrieve all steps' data
@@ -47,10 +46,22 @@ ylabel('||s||_2'); xlabel('iter (k)');
 %
 figure;
 hold on;
-gscatter(trainDS(:,1),trainDS(:,2), trainDS(:,size(trainDS,2)));
+gscatter(trainSamples(:,1),trainSamples(:,2), trainLabels);
 
 xavg = mean(results.lastx,2);
 zavg = mean(results.lastz,2);
 plot (zavg*xavg',xavg);
 hold off;
 %THE PART OF THE CLASSIFICATION TEST ON DATA NOT SEEN BEFORE IS ALSO MISSING. (ONE THING AT A TIME)
+
+
+%
+% Now we will use matlab fitcsvm to train an SVM and test its performace
+%
+svm2 = fitcsvm(trainSamples,trainLabels);
+cvMdl = crossval(svm2); % Performs stratified 10-fold cross-validation
+cvtrainError = kfoldLoss(cvMdl);
+cvtrainAccuracy = 1-cvtrainError
+
+newError = loss(svm2,testSamples,testLabels);
+newAccuracy = 1-newError
