@@ -41,23 +41,23 @@ ylabel('||r||_2');
 subplot(2,1,2);
 semilogy(1:K, max(1e-8, results.s_norm), 'k', 1:K, results.eps_dual, 'k--', 'LineWidth', 2);
 ylabel('||s||_2'); xlabel('iter (k)');
-%
-% Plot data THIS PART IS ONLY AN ATTEMPT TO DRAW THE DATA AND THE SEPARATOR HYPERPIAN. FOR NOW I HAVE NOT SUCCESS ...
-%
+
+% Show in figure the data and the decision boundary
 figure;
 hold on;
 gscatter(trainSamples(:,1),trainSamples(:,2), trainLabels);
 
 xavg = mean(results.lastx,2);
-zavg = mean(results.lastz,2);
-plot (zavg*xavg',xavg);
-hold off;
-%THE PART OF THE CLASSIFICATION TEST ON DATA NOT SEEN BEFORE IS ALSO MISSING. (ONE THING AT A TIME)
 
+xspMax = max(max( max(trainSamples), max(testSamples)));
+xspMin = min(min( min(trainSamples), min(testSamples)));
+xsp = linspace(xspMin,xspMax);
 
-%
+g = @(xsp) -(xsp*xavg(1) + xavg(3))/xavg(2); % xavg is  [w,b]
+yg = g(xsp);
+plot(xsp,yg,'b--','LineWidth',2,'DisplayName','Boundary SVM1')
+
 % Now we will use matlab fitcsvm to train an SVM and test its performace
-%
 svm2 = fitcsvm(trainSamples,trainLabels);
 cvMdl = crossval(svm2); % Performs stratified 10-fold cross-validation
 cvtrainError = kfoldLoss(cvMdl);
@@ -65,3 +65,11 @@ cvtrainAccuracy = 1-cvtrainError
 
 newError = loss(svm2,testSamples,testLabels);
 newAccuracy = 1-newError
+
+% plot svm2 boundary
+f = @(xsp) -(xsp*svm2.Beta(1) + svm2.Bias)/svm2.Beta(2);
+yp=f(xsp);
+plot(xsp,yp,'g--','LineWidth',2,'DisplayName','Boundary SVM2');
+hold off;
+
+%THE PART OF THE CLASSIFICATION TEST ON DATA NOT SEEN BEFORE IS ALSO MISSING. (ONE THING AT A TIME)

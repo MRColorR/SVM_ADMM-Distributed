@@ -3,8 +3,8 @@ function [results] = svm_admm(trainSamples, trainLabels, lambda, Kmax, p, rho)
 t_start = tic;
 
 % Set tolerances for stop condition
-tolAbs   = 1e-4;
-tolRel   = 1e-2;
+tolAbs   = 1e-5;
+tolRel   = 1e-3;
 Dataset = [trainSamples,trainLabels];
 % We simulate a distributed consensus in a serial way so the data must be treated appropriately
 n = size(Dataset,2); %extract columns dimension
@@ -12,7 +12,7 @@ N = max(p); % retrieve numbers of partitions
 
 % group samples together
 tmp = cell(1,N); % Preallocate variable to reduce computational time
-parfor i = 1:N
+for i = 1:N
     tmp{i} = Dataset(p==i,:);
 end
 Dataset = tmp;
@@ -31,7 +31,7 @@ for k = 1:Kmax % Iteration's steps
     for i = 1:N
         cvx_begin quiet % using CVX to solve the convex minimization problem
         variable x_var(n) % varibale xi to be computed and updated
-        minimize ( sum(pos(Dataset{i}*x_var + 1)) + rho/2*sum_square(x_var - z(:,i) + u(:,i)) )
+        minimize ( sum(pos(Dataset{i}*x_var + 1)) + rho/2*sum_square(x_var - z(:,i) + u(:,i)) ) % pos indicates the positive part (performs the max between (0 and f)
         cvx_end
         x(:,i) = x_var; % save updated xi ( save x_var in i column of x)
     end
@@ -48,8 +48,6 @@ for k = 1:Kmax % Iteration's steps
     % diagnostics, reporting, termination checks
     results.objval(k)  = objective(Dataset, lambda, x, z);
 
-    %================
-
 
     results.r_norm(k)  = norm(x - z); % L2 norm of x-z
     results.s_norm(k)  = norm(-rho*(z - zold));
@@ -58,11 +56,9 @@ for k = 1:Kmax % Iteration's steps
     results.eps_dual(k)= sqrt(n)*tolAbs + tolRel*norm(rho*u);
 
     fprintf('%3d\t%10.4f\t%10.4f\t%10.4f\t%10.4f\t%10.2f\n', k, results.r_norm(k), results.eps_pri(k), results.s_norm(k), results.eps_dual(k), results.objval(k));
-    %
-    % THIS PART IS ONLY AN ATTEMPT TO GET THE OPTIMIZED PARAMETERS TO DRAW THE DATA AND THE SEPARATOR HYPERPIAN OF THE TRAINED SVM. FOR NOW I HAVE NOT SUCCESS ...
+
+    % GET THE OPTIMIZED PARAMETERS TO DRAW THE DATA AND THE DECISION BOUNDARY OF THE TRAINED SVM
     results.lastx = x;
-    results.lastz = z;
-    results.lastu = u;
 
     if (results.r_norm(k) < results.eps_pri(k) && results.s_norm(k) < results.eps_dual(k))
         break;
