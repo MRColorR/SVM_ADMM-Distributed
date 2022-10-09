@@ -5,24 +5,30 @@ clc;
 
 % Parameters setup
 
-lambda = 1.0; % set lambda of the SVM fittig. Lambda is the regularization parameter of the SVM that multiply the hinge loss function
+worstAssign = false;
+
+lambda = 1e0; % set lambda of the SVM fittig. Lambda is the regularization parameter of the SVM that multiply the hinge loss function
 
 Kmax = 500; % Maximum number of iteration indicates the acceptable value within which convergence should be achieved to avoid forced stop. Should be more than enough to reach convergence.
 
-rho = 1.0; % Set rho parameter of the augmented Lagrangian. It is part of the regularization term added for obtaining a strictly convex optimization problem
+rho = 1e0; % Set rho parameter of the augmented Lagrangian. It is part of the regularization term added for obtaining a strictly convex optimization problem
 
-[trainSamples,trainLabels, testSamples, testLabels] = newData("load"); % if argument="load" it loads, else for any other argument e.g. "Random" it generates new data collected in Dataset. p indicates the partitioned sets
+[trainSamples,trainLabels, trA, testSamples, testLabels] = newData("load"); % if argument="load" it loads, else for any other argument e.g. "Random" it generates new data collected in Dataset. p indicates the partitioned sets
 
-m = size(trainSamples,1); % extract training samples number
+m = size(trA,1); % extract training samples number
 Nss = floor(m.*0.1); % number of sub sets to create for the split by data approach
 
 % Calculate sub-partitions that will be assigned to each agent
 p = zeros(1,m);
-p(trainLabels == 1)  = sort(randi([1, floor(Nss/2)], sum(trainLabels==1),1));
-p(trainLabels == -1) = sort(randi([floor(Nss/2)+1, Nss], sum(trainLabels==-1),1));
+if(worstAssign)
+    p(trainLabels == 1)  = sort(randi([1, floor(Nss/2)], sum(trainLabels==1),1));
+    p(trainLabels == -1) = sort(randi([floor(Nss/2)+1, Nss], sum(trainLabels==-1),1));
+else
+        p = randi([1, Nss],m,1);
 
+end
 % Let's call the function to solve the SVM problem using ADMM
-[results] = svm_admm(trainSamples, trainLabels, lambda, Kmax, p, rho);
+[results] = svm_admm(trainSamples, trainLabels, trA, lambda, Kmax, p, rho);
 
 % Now let's see the results
 K = length(results.objval); % Retrieve all steps' data
@@ -45,25 +51,25 @@ ylabel('||s||_2'); xlabel('iter (k)');
 % Show in figure the data and the decision boundary
 figure;
 hold on;
-gscatter(trainSamples(:,1),trainSamples(:,2), trainLabels);
+gscatter(trainSamples(1,:),trainSamples(2,:), trainLabels);
 
 xavg = mean(results.lastx,2);
 
-xspMax = max(max( max(trainSamples), max(testSamples)));
-xspMin = min(min( min(trainSamples), min(testSamples)));
+xspMax = max(max( max(trainSamples,[],2), max(testSamples,[],2)));
+xspMin = min(min( min(trainSamples,[],2), min(testSamples,[],2)));
 xsp = linspace(xspMin,xspMax);
 
-g = @(xsp) -(xsp*xavg(1) + xavg(3))/xavg(2); % xavg is  [w,b]
+g = @(xsp) -(xsp*xavg(1) +xavg(3))/xavg(2); % xavg is  [w,b]
 yg = g(xsp);
 plot(xsp,yg,'b--','LineWidth',2,'DisplayName','Boundary SVM1')
 
 % Now we will use matlab fitcsvm to train an SVM and test its performace
-svm2 = fitcsvm(trainSamples,trainLabels);
+svm2 = fitcsvm(trainSamples',trainLabels');
 cvMdl = crossval(svm2); % Performs stratified 10-fold cross-validation
 cvtrainError = kfoldLoss(cvMdl);
 cvtrainAccuracy = 1-cvtrainError
 
-newError = loss(svm2,testSamples,testLabels);
+newError = loss(svm2,testSamples',testLabels');
 newAccuracy = 1-newError
 
 % plot svm2 boundary

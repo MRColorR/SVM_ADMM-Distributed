@@ -1,27 +1,28 @@
-function [results] = svm_admm(trainSamples, trainLabels, lambda, Kmax, p, rho)
+function [results] = svm_admm(trainSamples, trainLabels,trA, lambda, Kmax, p, rho)
 % Start stopwatch to measure execution time
 t_start = tic;
 
 % Set tolerances for stop condition
-tolAbs   = 1e-5;
-tolRel   = 1e-3;
-Dataset = [trainSamples,trainLabels];
+tolAbs   = 1e-4;
+tolRel   = 1e-2;
+%Dataset = [trainSamples,trainLabels];
+Dataset = trA;
 % We simulate a distributed consensus in a serial way so the data must be treated appropriately
-n = size(Dataset,2); %extract columns dimension
+n = size(Dataset,2); %extract columns number
 N = max(p); % retrieve numbers of partitions
 
-% group samples together
+% group samples together use worst to do assign them in the worst manner
 tmp = cell(1,N); % Preallocate variable to reduce computational time
 for i = 1:N
-    tmp{i} = Dataset(p==i,:);
+        tmp{i} = Dataset(p==i,:);
 end
 Dataset = tmp;
 
 % Setup and use ADMM solver
 % Preallocate variables to reduce computational time
-x = zeros(n,N);
-z = zeros(n,N);
-u = zeros(n,N);
+x = randn(n,N);
+z = randn(n,N);
+u = randn(n,N);
 
 fprintf('%3s\t%10s\t%10s\t%10s\t%10s\t%10s\n', 'iter', 'r norm', 'eps pri', 's norm', 'eps dual', 'objective');
 
@@ -31,7 +32,7 @@ for k = 1:Kmax % Iteration's steps
     for i = 1:N
         cvx_begin quiet % using CVX to solve the convex minimization problem
         variable x_var(n) % varibale xi to be computed and updated
-        minimize ( sum(pos(Dataset{i}*x_var + 1)) + rho/2*sum_square(x_var - z(:,i) + u(:,i)) ) % pos indicates the positive part (performs the max between (0 and f)
+        minimize ( sum(pos(Dataset{i}*x_var + 1)) + (rho/2)*sum_square(x_var - z(:,i) + u(:,i)) ) % pos indicates the positive part (performs the max between (0 and f)
         cvx_end
         x(:,i) = x_var; % save updated xi ( save x_var in i column of x)
     end
@@ -39,11 +40,14 @@ for k = 1:Kmax % Iteration's steps
 
     % z-update
     zold = z;
-    z = N*rho/(1/lambda + N*rho)*mean( x + u, 2 );
+    z = N*rho*(1/(2*lambda + N*rho))*(mean(x, 2)+ mean(u,2));
+    z(size(z,1),:) = ((2*lambda+N*rho)/N*rho)*z(size(z,1),:);
     z = z*ones(1,N);
 
     % u-update
-    u = u + (x - z);
+    for i = 1:N
+        u(:,i)=u(:,i) + x(:,i) - z(:,i);
+    end
 
     % diagnostics, reporting, termination checks
     results.objval(k)  = objective(Dataset, lambda, x, z);
