@@ -10,7 +10,7 @@ Kmax = 500; % Maximum number of iteration indicates the acceptable value within 
 rho = 1e0; % Set rho parameter, part of the regularization term added for obtaining a strictly convex optimization problem
 
 % Load dataset from a file or generate one
-[trainSamples,trainLabels, trainA, testSamples, testLabels] = newData("load"); % load: use a dataset file, else for any other argument e.g. "Random" it generates a new random dataset.
+[trainSamples,trainLabels, trainA, testSamples, testLabels] = newData("random"); % load: use a dataset file, else for any other argument e.g. "Random" it generates a new random dataset.
 
 m = size(trainA,1); % Extract training samples number
 Nss = floor(m.*0.1); % Number of sub sets to create for the split by data approach, each subset is assigned to an agent
@@ -28,21 +28,16 @@ end
 [results] = svm_admm(trainA, lambda, Kmax, p, rho);
 
 % Now let's see the results
-K = length(results.objval); % Retrieve all steps' data
-
-% Plot the resulting values for each iteration
-figure("Name"," Objective function vs iterations");;
-plot(1:K, results.objval, 'k', 'MarkerSize', 10, 'LineWidth', 2);
-ylabel('f(x^k) + g(z^k)'); xlabel('iter (k)');
+K = length(results.r_norm); % Retrieve all steps' data
 
 % Plot performance trend as the iterations pass
 figure("Name","Performance and stop conditions vs iterations");
 subplot(2,1,1);
-semilogy(1:K, max(1e-8, results.r_norm), 'k', 1:K, results.eps_pri, 'k--',  'LineWidth', 2);
+semilogy(1:K, max(1e-8, results.r_norm), 'b', 1:K, results.eps_pri, 'r--',  'LineWidth', 2);
 ylabel('||r||_2');
 
 subplot(2,1,2);
-semilogy(1:K, max(1e-8, results.s_norm), 'k', 1:K, results.eps_dual, 'k--', 'LineWidth', 2);
+semilogy(1:K, max(1e-8, results.s_norm), 'b', 1:K, results.eps_dual, 'r--', 'LineWidth', 2);
 ylabel('||s||_2'); xlabel('iter (k)');
 
 % Show in figure the data and the decision boundary of svm_admm (svm1)
