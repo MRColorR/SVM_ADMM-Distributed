@@ -1,7 +1,7 @@
 function [trainSamples,trainLabels, trainA, testSamples, testLabels] = newData(type)
 % setup default behaviour it will be adapted to the specific dataset if needed
 n = 2; % Default number of features
-m = 250; % Default number of samples
+m = 1200; % Default number of samples
 % Generate random values that will be used as dataset if no other dataset is provided
 % setup random generator seed to default wich use Mersenne Twister with
 % seed 0 this will let us setup what generator rand, randn and randi are using
@@ -51,10 +51,10 @@ function DSOrig = rndDataGen(m)
 % let's generate some data for each class, then we'll assign some of them to
 % -1 class some others to +1 class.
 Q = floor(m/2);
-plus1 = [1.8+0.6*randn(1,0.6*Q), 1.7+0.7*randn(1,0.4*Q);
-    1.3*(randn(1,0.6*Q)+1.2), 1.4*(randn(1,0.4*Q)+1.1)];
-minus1 = [-1.8+0.6*randn(1,0.6*Q),  -1.7+0.7*randn(1,0.4*Q);
-    -1.3*(randn(1,0.6*Q)-1.1), -1.4*(randn(1,0.4*Q)-1)];
+plus1 = [1.7+0.6*randn(1,0.6*Q), 1.6+0.7*randn(1,0.4*Q);
+    1.5*(randn(1,0.6*Q)+1.2), 1.4*(randn(1,0.4*Q)+1.1)];
+minus1 = [-1.7+0.6*randn(1,0.6*Q),  -1.6+0.7*randn(1,0.4*Q);
+    -1.5*(randn(1,0.6*Q)-1.1), -1.4*(randn(1,0.4*Q)-1)];
 x = [minus1, plus1]; % x contains all the generated values
 y = [ones(1,Q), -ones(1,Q)]; % labels
 DSOrig = [x;y]; % generated dataset
