@@ -6,7 +6,7 @@ clc;
 % Parameters setup
 worstAssign = false; % False: assign samples randomically to each agent. True: Assign them mixed samples' blocks with the same label to make convergence harder
 lambda = 6e-1; % Set lambda of the SVM fittig. 
-Kmax = 500; % Maximum number of iteration indicates the acceptable value within which convergence should be achieved to avoid forced stop.
+Kmax = 750; % Maximum number of iteration indicates the acceptable value within which convergence should be achieved to avoid forced stop.
 rho = 1e0; % Set rho parameter, part of the regularization term added for obtaining a strictly convex optimization problem
 
 % Load dataset from a file or generate one
@@ -28,7 +28,7 @@ end
 [results] = svm_admm(trainA, lambda, Kmax, p, rho);
 
 % Now let's see the results
-K = length(results.r_norm); % Retrieve all steps' data
+K = length(results.r_norm); % Retrieve all steps' data lenght
 
 % Plot performance trend as the iterations pass
 figure("Name","Performance and stop conditions vs iterations");
