@@ -10,7 +10,7 @@ Kmax = 750; % Maximum number of iteration indicates the acceptable value within 
 rho = 1e0; % Set rho parameter, part of the regularization term added for obtaining a strictly convex optimization problem
 
 % Load dataset from a file or generate one
-[trainSamples,trainLabels, trainA, testSamples, testLabels] = newData("random"); % load: use a dataset file, else for any other argument e.g. "Random" it generates a new random dataset.
+[trainSamples,trainLabels, trainA, testSamples, testLabels] = newData("load"); % load: use a dataset file, else for any other argument e.g. "random" it generates a new random dataset.
 
 m = size(trainA,1); % Extract training samples number
 Nss = floor(m.*0.1); % Number of sub sets to create for the split by data approach, each subset is assigned to an agent
