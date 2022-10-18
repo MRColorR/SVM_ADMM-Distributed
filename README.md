@@ -8,7 +8,7 @@ The main focus of this project is to train a linear SVM and show data separated 
 - Small sample dataset
 - Random dataset generator
 - performance and data plots  
-- project document with details on the formulas and theory used
+- project document with details on the formulas and theory used (ITA)
 - CVX installer (sept-2022)
 
 The first SVM is decentralized and is written from scratch starting from the fitting problem of SVM solved in a distributed form through ADMM and CVX. The second one is the classic svm made with fitcsvm for comparison.  
