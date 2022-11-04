@@ -3,6 +3,8 @@ Solve a SVM fitting problem in MATLAB using a consensus distributed ADMM approac
 
 The main focus of this project is to train a linear SVM and show data separated by the best hyperplane in a figure. Then use some of the data not used in the training to show in another figure the performance of the SVM trained in prediction against the real labels. The important thing is that the first SVM is written from scratch resolving the SVM fitting problem starting from the theory so it doesn't use fitcsvm but it solve a distributed convex optimization problem using distributed ADMM with split by data approach and CVX (to research the best parameters for the SVM in order to train it).
 
+- [x] Leave a star ⭐ if you like this project 🙂 thank you.
+
 ## What's inside
 - Two linear SVMs one distributed, one centralized.
 - Small sample dataset
