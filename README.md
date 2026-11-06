@@ -2,7 +2,11 @@
 
 <!-- Project README scaffold: https://github.com/MRColorR/project-template -->
 
-[Overview](#overview) | [Getting started](#getting-started) | [Documentation](#documentation) | [Contributing](#contributing) | [Support](#support) | [License](#license)
+**Compare a distributed support vector machine with a conventional MATLAB implementation.**
+
+[**Run the example**](#getting-started) · [Documentation](#documentation) · [Support](#support)
+
+**Leave a star ⭐ if you like this project 🙂 Thank you!**
 
 ## Overview
 
@@ -10,7 +14,6 @@ Solve a SVM fitting problem in MATLAB using a consensus distributed ADMM approac
 
 The main focus of this project is to train a linear SVM and show data separated by the best hyperplane in a figure. Then use some of the data not used in the training to show in another figure the performance of the SVM trained in prediction against the real labels. The important thing is that the first SVM is written from scratch resolving the SVM fitting problem starting from the theory so it doesn't use fitcsvm but it solve a distributed convex optimization problem using distributed ADMM with split by data approach and CVX (to research the best parameters for the SVM in order to train it).
 
-- [x] Leave a star ⭐ if you like this project 🙂 thank you.
 
 ## Getting started
 
@@ -45,13 +48,9 @@ Please include enough context to reproduce a problem or review a change.
 
 ## Support
 
-Ko-fi supports Mattia / MrColorRain's work across projects.
+Help fund ongoing development, testing, and documentation with a one-time contribution or monthly membership on [Ko-fi](https://ko-fi.com/mrcolorrain). Technical decisions remain independent.
 
-Support ongoing development, testing and documentation through [Ko-fi](https://ko-fi.com/mrcolorrain). One-time contributions and monthly memberships are welcome, and you can pledge above a tier's minimum.
-
-Your contribution helps me keep building, testing and sharing useful work. Explore the membership benefits on Ko-fi and choose the way you would like to support. Technical decisions remain independent.
-
-See the [supporters and sponsors directory](https://github.com/MRColorR/MRColorR/blob/main/SPONSORS.md) for acknowledgments.
+Thank you to the people who support MrColorRain’s work. See the [supporters and sponsors directory](https://github.com/MRColorR/MRColorR/blob/main/SPONSORS.md).
 
 ## License
 
